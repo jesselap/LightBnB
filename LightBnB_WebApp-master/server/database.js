@@ -1,14 +1,4 @@
-const properties = require('./json/properties.json');
-const users = require('./json/users.json');
-const { Pool } = require('pg');
-
-const pool = new Pool({
-  user: 'vagrant',
-  password: '123',
-  host: 'localhost',
-  database: 'lightbnb'
-});
-
+const db = require("./db/index");
 
 /// Users
 
@@ -23,7 +13,7 @@ const getUserWithEmail = function(email) {
     FROM users
     WHERE email = $1;
   `;
-  return pool
+  return db
     .query(queryString, [email])
       .then((result) => result.rows[0])
       .catch((err) => err.message);
@@ -41,7 +31,7 @@ const getUserWithId = function(id) {
     FROM users
     WHERE users.id = $1
   `;
-  return pool
+  return db
     .query(queryString, [id])
       .then((result) => result.rows[0])
       .catch((err) => err.message);
@@ -59,7 +49,7 @@ const addUser =  function(user) {
     INSERT INTO users (name, email, password)
     VALUES ($1, $2, $3);
    `;
-  return pool
+  return db
     .query(queryString, [user.name, user.email, user.password])
       .then((result) => result.rows[0])
       .catch((err) => err.message);
@@ -82,7 +72,7 @@ const getAllReservations = function(guest_id, limit = 10) {
     ORDER BY reservations.end_date
     LIMIT $2;
   `;
-  return pool
+  return db
     .query(queryString, [guest_id, limit])
     .then((result) => result.rows)
     .catch((err) => err.message);
@@ -142,7 +132,7 @@ const getAllProperties = function(options, limit = 10) {
   LIMIT $${queryParams.length};
   `;
 
-  return pool
+  return db
     .query(queryString, queryParams)
     .then((result) => result.rows)
     .catch((err) => err.message);
@@ -176,7 +166,7 @@ const addProperty = function(property) {
     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14) 
     RETURNING *;
     `;
-  return pool
+  return db
     .query(queryString, Object.values(property))
     .then((result) => {
       return result.rows[0];
